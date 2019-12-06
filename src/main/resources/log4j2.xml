@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <!-- 日志文件目录和压缩文件目录配置 -->
+    <Properties>
+        <Property name="filePath">${sys:logging.path:-./logs}/</Property>
+        <Property name="PID">????</Property>
+        <Property name="SQL_LEVEL">DEBUG</Property>
+        <Property name="LOG_PATTERN">%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint} %clr{%5p} %clr{${sys:PID}}{magenta}
+            %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%xwEx
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <!-- 输出控制台日志的配置 -->
+        <Console name="console" target="SYSTEM_OUT" follow="true">
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 输出日志的格式 -->
+            <PatternLayout disableAnsi="false">
+                <pattern>%d{HH:mm:ss} [%-25t] [%X{requestId}] %highlight{%-5level} %logger{36} %L %M - %msg%n</pattern>
+            </PatternLayout>
+        </Console>
+
+        <!-- 打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
+        <RollingRandomAccessFile name="infoFile" fileName="${filePath}/app.log" immediateFlush="true"
+                                 filePattern="${filePath}/7z/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.app.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} [%t] [%X{requestId}] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录info级别信息 -->
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="methodLogAop" fileName="${filePath}/aop.log" immediateFlush="true"
+                                 filePattern="${filePath}/7z/$${date:yyyy-MM}/aop-%d{MM-dd-yyyy}-%i.aop.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} [%t] [%X{requestId}] %-5level [aop] %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <Filters>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+
+        <!-- error log -->
+        <RollingRandomAccessFile name="errorFile" fileName="${filePath}/error.log" immediateFlush="true"
+                                 filePattern="${filePath}/7z/$${date:yyyy-MM}/error-%d{MM-dd-yyyy}-%i.error.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} [%t] [%X{requestId}] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录error级别信息 -->
+                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="mybatisFile" fileName="${filePath}/mybatis.log" immediateFlush="true"
+                                 filePattern="${filePath}/7z/$${date:yyyy-MM}/mybatis-%d{MM-dd-yyyy}-%i.mybatis.gz">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} [%t] [%X{requestId}] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="50 MB"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录info级别信息 -->
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 指定每天的最大压缩包个数，默认7个，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.study.javastudy.aop.MethodLogAop" level="info">
+            <AppenderRef ref="methodLogAop"/>
+        </Logger>
+        <Root level="info" additivity="true">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="infoFile"/>
+            <AppenderRef ref="errorFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
