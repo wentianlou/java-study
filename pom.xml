@@ -73,6 +73,19 @@
             <version>2.10.6</version>
         </dependency>
         <!-- cache 需要的依赖 -->
+
+        <!-- activemq 需要的依赖 -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-pool</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-activemq</artifactId>
+        </dependency>
+        <!-- activemq 需要的依赖 -->
+
     </dependencies>
 
     <build>
